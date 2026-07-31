@@ -1,0 +1,612 @@
+:root {
+  --bg: #06070b;
+  --ink: #f2f4f8;
+  --ink-soft: #9aa3b4;
+  --ink-faint: #5d6675;
+  --accent: #ff2d3d;
+  --font-display: 'Archivo', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'Cascadia Code', monospace;
+  --gutter: clamp(1.5rem, 5vw, 5rem);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  /* Lenis yang ngurusin smooth scroll, jadi scroll-behavior native dimatiin */
+  scroll-behavior: auto;
+}
+
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-display);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+body.is-loading {
+  overflow: hidden;
+}
+
+/* ---------- Canvas 3D ---------- */
+
+.webgl {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  display: block;
+}
+
+/* Palang hitam atas-bawah — rasio layar lebar ala film.
+   Ini isyarat paling murah sekaligus paling kuat: begitu ada palang, otak
+   langsung baca gambarnya sebagai adegan film, bukan halaman web. */
+.letterbox {
+  position: fixed;
+  left: 0;
+  right: 0;
+  height: clamp(2.6rem, 8vh, 5.5rem);
+  background: #000;
+  z-index: 15;
+  pointer-events: none;
+}
+
+.letterbox--top {
+  top: 0;
+}
+
+.letterbox--bottom {
+  bottom: 0;
+}
+
+/* ---------- Loader ---------- */
+
+.loader {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  background: var(--bg);
+  transition: opacity 0.7s ease, visibility 0.7s;
+}
+
+.loader.is-done {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.loader__inner {
+  display: grid;
+  gap: 0.9rem;
+  justify-items: center;
+  width: min(280px, 70vw);
+}
+
+.loader__label,
+.loader__pct {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.loader__track {
+  width: 100%;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.09);
+  overflow: hidden;
+}
+
+.loader__bar {
+  height: 100%;
+  width: 0%;
+  background: var(--accent);
+  transition: width 0.25s ease;
+}
+
+/* ---------- Chrome (topbar + nav) ---------- */
+
+/* Logo & label ditaro di dalam palang hitam atas — kayak overlay di film */
+.topbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: clamp(2.6rem, 8vh, 5.5rem);
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--gutter);
+}
+
+.topbar__logo {
+  font-weight: 900;
+  font-size: 0.95rem;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+}
+
+.topbar__logo em {
+  font-style: normal;
+  font-weight: 400;
+}
+
+.topbar__meta {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.nav {
+  position: fixed;
+  right: var(--gutter);
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 20;
+  display: grid;
+  gap: 1.1rem;
+}
+
+.nav-dot {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  color: var(--ink-faint);
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  justify-content: flex-end;
+  transition: color 0.35s ease;
+}
+
+.nav-dot__label {
+  opacity: 0;
+  transform: translateX(6px);
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+
+.nav-dot__mark {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  border: 1px solid currentColor;
+  flex-shrink: 0;
+  transition: background 0.35s ease, box-shadow 0.35s ease, transform 0.35s ease;
+}
+
+.nav-dot:hover,
+.nav-dot.is-active {
+  color: var(--accent);
+}
+
+.nav-dot:hover .nav-dot__label,
+.nav-dot.is-active .nav-dot__label {
+  opacity: 1;
+  transform: none;
+}
+
+.nav-dot.is-active .nav-dot__mark {
+  background: var(--accent);
+  box-shadow: 0 0 12px var(--accent);
+  transform: scale(1.25);
+}
+
+/* ---------- Layout umum ---------- */
+
+main {
+  position: relative;
+  z-index: 10;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.eyebrow__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 10px var(--accent);
+}
+
+/* ---------- Hero ---------- */
+
+.hero {
+  position: relative;
+  height: 100vh;
+  /* svh = tinggi layar saat bar alamat HP lagi kebuka. Pakai vh doang bikin
+     bagian bawah ketutupan bar, dan tingginya lompat-lompat pas discroll. */
+  height: 100svh;
+  display: flex;
+  align-items: flex-end;
+  padding: 0 var(--gutter) clamp(5rem, 13vh, 8.5rem);
+  pointer-events: none;
+}
+
+.hero__inner {
+  display: grid;
+  gap: 1.15rem;
+  max-width: 32rem;
+}
+
+.hero__title {
+  font-size: clamp(2.6rem, 6.4vw, 5rem);
+  font-weight: 900;
+  line-height: 0.88;
+  letter-spacing: -0.045em;
+  text-transform: uppercase;
+  text-shadow: 0 2px 30px rgba(0, 0, 0, 0.7);
+}
+
+.hero__title em {
+  font-style: normal;
+  color: transparent;
+  -webkit-text-stroke: 1.5px var(--ink);
+}
+
+.hero__sub {
+  color: var(--ink-soft);
+  font-size: clamp(0.95rem, 1.4vw, 1.08rem);
+  line-height: 1.6;
+  max-width: 28rem;
+}
+
+.hero__hint {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin-top: 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.hero__hint-line {
+  width: 46px;
+  height: 1px;
+  background: currentColor;
+  transform-origin: left;
+  animation: hint 2.2s ease-in-out infinite;
+}
+
+@keyframes hint {
+  0%,
+  100% {
+    transform: scaleX(0.35);
+    opacity: 0.4;
+  }
+  50% {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+}
+
+/* ---------- Chapter mobil ---------- */
+
+.chapter {
+  height: 280vh;
+  position: relative;
+}
+
+/* Teks ditaro rendah di kiri kayak title card film, bukan panel besar di tengah.
+   Gambarnya yang jadi bintang; tulisannya cuma keterangan. */
+.chapter__sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  display: flex;
+  align-items: flex-end;
+  padding: 0 var(--gutter) clamp(5rem, 13vh, 8.5rem);
+  pointer-events: none;
+}
+
+/* Scrim dua arah — paling gelap di pojok kiri-bawah, tempat teksnya duduk.
+   Bodi mobil putih bisa nyampe ke situ, dan tanpa ini tulisannya ilang. Cara
+   yang sama dipakai buat naro judul di poster film. */
+.chapter__sticky::before,
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(to top, rgba(3, 4, 7, 0.93) 0%, rgba(3, 4, 7, 0.5) 34%, transparent 68%),
+    linear-gradient(to right, rgba(3, 4, 7, 0.82) 0%, rgba(3, 4, 7, 0.25) 32%, transparent 58%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+.panel {
+  display: grid;
+  gap: 0.9rem;
+  width: min(27rem, 100%);
+}
+
+.panel__title {
+  font-size: clamp(1.9rem, 3.6vw, 2.9rem);
+  font-weight: 900;
+  line-height: 0.94;
+  letter-spacing: -0.035em;
+  text-transform: uppercase;
+  text-shadow: 0 2px 24px rgba(0, 0, 0, 0.7);
+}
+
+.panel__tagline {
+  color: var(--ink-soft);
+  font-size: clamp(0.85rem, 1.05vw, 0.94rem);
+  line-height: 1.6;
+  max-width: 24rem;
+}
+
+.panel__drivetrain {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  line-height: 1.6;
+  letter-spacing: 0.06em;
+  color: var(--accent);
+  padding-left: 0.85rem;
+  border-left: 2px solid var(--accent);
+}
+
+/* Spek dijejer satu baris — makan tinggi paling sedikit, dan kebaca sekilas
+   kayak overlay data di film dokumenter */
+.specs {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, auto));
+  gap: 0 clamp(0.9rem, 2vw, 1.7rem);
+  padding: 0.85rem 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.13);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.13);
+  width: fit-content;
+}
+
+.spec {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.spec__value {
+  font-size: clamp(1.05rem, 1.5vw, 1.35rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.spec__value small {
+  font-size: 0.42em;
+  font-weight: 500;
+  margin-left: 0.3em;
+  color: var(--ink-soft);
+  letter-spacing: 0.05em;
+}
+
+.spec__label {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.facts {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.facts__label {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.facts__list {
+  list-style: none;
+  display: grid;
+  gap: 0.5rem;
+}
+
+/* Dua fun fact aja yang tampil. Dinding teks bikin kesan filmnya buyar. */
+.facts__list li:nth-child(n + 3) {
+  display: none;
+}
+
+.facts__list li {
+  position: relative;
+  padding-left: 1.1rem;
+  font-size: 0.8rem;
+  line-height: 1.55;
+  color: var(--ink-soft);
+  max-width: 24rem;
+}
+
+.facts__list li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.6em;
+  width: 5px;
+  height: 1px;
+  background: var(--ink-faint);
+}
+
+/* ---------- Outro ---------- */
+
+.outro {
+  min-height: 100vh;
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  padding: 6rem var(--gutter);
+}
+
+.outro__inner {
+  display: grid;
+  gap: 1.4rem;
+  max-width: 32rem;
+}
+
+.outro__title {
+  font-size: clamp(2.4rem, 6vw, 4.5rem);
+  font-weight: 900;
+  line-height: 0.9;
+  letter-spacing: -0.04em;
+  text-transform: uppercase;
+}
+
+.outro__title em {
+  font-style: normal;
+  color: transparent;
+  -webkit-text-stroke: 1.5px var(--ink);
+}
+
+.outro p {
+  color: var(--ink-soft);
+  line-height: 1.65;
+  font-size: 0.98rem;
+}
+
+.outro__btn {
+  justify-self: start;
+  margin-top: 0.6rem;
+  padding: 0.85rem 1.6rem;
+  background: none;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 999px;
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+.outro__btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+/* ---------- Responsif ---------- */
+
+@media (max-width: 900px) {
+  .nav {
+    display: none;
+  }
+
+  /* Palang letterbox dipendekin. Di layar tegak, tinggi itu barang mahal —
+     palang setebal versi desktop bakal makan porsi gambar yang kelewat besar. */
+  .letterbox,
+  .topbar {
+    height: clamp(2rem, 4.5vh, 3rem);
+  }
+
+  .chapter {
+    height: 260svh;
+  }
+
+  .chapter__sticky,
+  .hero {
+    padding-left: var(--gutter);
+    padding-right: var(--gutter);
+    /* dikasih lebih longgar dari tinggi palang hitam bawah, biar baris terakhir
+       fun fact gak ketelan palangnya */
+    padding-bottom: clamp(3.25rem, 9.5vh, 5.5rem);
+  }
+
+  /* Mobilnya di tengah layar, teks numpuk di bawah — scrim-nya diputer jadi
+     murni dari bawah ke atas. */
+  /* Scrim-nya dinaikin sampai ketinggian judul. Sebelumnya udah bening duluan
+     di area itu, jadi tagline-nya nabrak bodi mobil dan susah kebaca. */
+  .chapter__sticky::before,
+  .hero::before {
+    background: linear-gradient(
+      to top,
+      rgba(3, 4, 7, 0.96) 0%,
+      rgba(3, 4, 7, 0.86) 32%,
+      rgba(3, 4, 7, 0.5) 54%,
+      transparent 78%
+    );
+  }
+
+  .panel,
+  .hero__inner {
+    width: 100%;
+    max-width: 100%;
+    gap: 0.7rem;
+  }
+
+  .panel__tagline,
+  .hero__sub,
+  .facts__list li {
+    max-width: 100%;
+  }
+
+  /* Empat spek berjejer gak muat di layar selebar ~390px — dijadiin 2x2 */
+  .specs {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.65rem 1rem;
+    padding: 0.75rem 0;
+    width: 100%;
+  }
+
+  /* satu fun fact aja, tinggi layarnya terbatas */
+  .facts__list li:nth-child(n + 2) {
+    display: none;
+  }
+}
+
+/* Layar pendek (HP tidur / jendela ceper): teksnya dipangkas lagi */
+@media (max-height: 520px) {
+  .panel__tagline,
+  .facts {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero__hint-line {
+    animation: none;
+  }
+}

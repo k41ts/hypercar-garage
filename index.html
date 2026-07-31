@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Showcase 3D Ferrari SF90 XX Stradale, Lamborghini Revuelto, dan McLaren Senna."
+    />
+    <title>Hypercar Garage — 3D Showcase</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800;900&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <div class="loader" id="loader">
+      <div class="loader__inner">
+        <span class="loader__label">Manasin mesin</span>
+        <div class="loader__track"><div class="loader__bar" id="loader-bar"></div></div>
+        <span class="loader__pct" id="loader-pct">0%</span>
+      </div>
+    </div>
+
+    <canvas class="webgl" id="webgl"></canvas>
+    <div class="letterbox letterbox--top" aria-hidden="true"></div>
+    <div class="letterbox letterbox--bottom" aria-hidden="true"></div>
+
+    <header class="topbar">
+      <span class="topbar__logo">Hypercar<em>Garage</em></span>
+      <span class="topbar__meta" id="topbar-meta">Ferrari</span>
+    </header>
+
+    <nav class="nav" id="nav" aria-label="Pilih mobil"></nav>
+
+    <main id="app"></main>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
