@@ -5,3 +5,5 @@ dist
 
 # Backup mentah model 3D (134MB, hasil simplify-nya udah ada di public/models)
 models-original
+
+.vercel

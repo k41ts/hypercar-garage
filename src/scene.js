@@ -364,17 +364,22 @@ export class GarageScene {
     samples.push(dt)
     if (samples.length < 60) return
 
-    const average = samples.reduce((a, b) => a + b, 0) / samples.length
+    // MEDIAN, bukan rata-rata. Ini penting.
+    //
+    // Rata-rata gampang diracuni satu frame nyangkut. Waktu model mobil
+    // berikutnya di-decode, ada hentakan ratusan milidetik SEKALI — dan itu
+    // cukup buat ngangkat rata-rata 60 frame ke atas ambang batas, walaupun
+    // 59 frame lainnya mulus 60fps. Akibatnya fitur dimatiin permanen di
+    // perangkat yang sebenernya sanggup (kejadian di MX350: kualitas penuh
+    // cuma 4,4 ms, tapi bayangannya tetap dicopot).
+    //
+    // Median gak bisa digeser sama satu pencilan — dia cuma turun kalau
+    // perangkatnya emang beneran gak kuat secara konsisten.
+    const sorted = [...samples].sort((a, b) => a - b)
+    const median = sorted[Math.floor(sorted.length / 2)]
     samples.length = 0
 
-    // Ambangnya rapat dan sengaja ngincer 60 fps (16,7 ms), bukan sekadar
-    // "gak patah-patah". Kalau jarak naik-turunnya kelebaran, ada zona mati:
-    // pantulan lantai nyala, fps jatuh ke 43, tapi belum cukup buruk buat
-    // dimatiin lagi — jadi nyangkut selamanya di 43 fps.
-    //
-    // Aman dari kedip nyala-mati karena tiap fitur yang dicopot langsung
-    // ditandai terlarang dan gak pernah dicoba lagi.
-    if (average > 0.021) this._downgrade()
+    if (median > 0.021) this._downgrade()
   }
 
   /**

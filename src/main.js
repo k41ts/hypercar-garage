@@ -64,3 +64,8 @@ ScrollTrigger.refresh()
 // Frame pertama digambar lewat setTimeout, bukan requestAnimationFrame: rAF
 // gak pernah jalan selama tab-nya gak kelihatan, jadi canvas-nya bakal kosong.
 setTimeout(() => garage.render(1 / 60), 0)
+
+// Sisa mobilnya dicicil pas browser nganggur — selagi orang masih baca bagian
+// pembuka. Kalau nunggu sampai mobilnya mau muncul, decode-nya bikin hentakan
+// tepat di tengah gerakan kamera.
+carManager.prefetchAll()

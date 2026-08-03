@@ -237,6 +237,30 @@ export class CarManager {
     if (index >= 0 && index < this.cars.length) this.load(index)
   }
 
+  /**
+   * Muat sisa mobilnya pas browser lagi nganggur, bukan pas lagi discroll.
+   *
+   * Decode Draco dan penggabungan mesh itu kerjaan berat yang jalan di main
+   * thread. Kalau dipicu waktu mobil berikutnya mau muncul, hentakannya
+   * mendarat persis di tengah gerakan kamera — dan di situ paling kelihatan.
+   * Dijalanin pas nganggur bikin hentakannya jatuh waktu orang masih baca
+   * bagian pembuka, jadi transisinya nanti mulus.
+   *
+   * Dimuat satu per satu, biar gak rebutan CPU sama frame yang lagi jalan.
+   */
+  prefetchAll() {
+    const whenIdle =
+      window.requestIdleCallback?.bind(window) ?? ((fn) => setTimeout(fn, 400))
+
+    let index = 1
+    const loadNext = () => {
+      if (index >= this.cars.length) return
+      this.load(index++).finally(() => whenIdle(loadNext))
+    }
+
+    whenIdle(loadNext)
+  }
+
   _fade(entry, to, duration, ease, onComplete) {
     const state = entry.fadeState ?? (entry.fadeState = { v: 0 })
     gsap.killTweensOf(state)
